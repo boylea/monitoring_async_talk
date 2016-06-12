@@ -1,0 +1,91 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+body {
+    font-family: Roboto, sans-serif;
+    font-size:48px;
+    text-align: center;
+    height:640px;
+    width:1024px;
+    margin:0;
+    padding:0;
+    background-image: url('img/old_mathematics.png');
+}
+
+h1 {
+    font-size:140%;
+}
+
+h2 {
+    margin-top: 1em;
+    font-size:110%;
+    font-weight: normal;
+}
+
+p, ul {
+    margin-top: 1em;
+    margin-left: 1em;
+    text-align: left;
+}
+
+b, strong { font-weight: bold }
+
+/*using pre as alias for code?*/
+pre {
+    text-align: left;
+    font-size:50%;
+    margin-left:10%;
+    padding:1em;
+    width:80%;
+}
+/*
+td {
+  border: 1px solid #999;
+  padding: 0.5rem;
+}
+*/
+img {
+  margin: 5px;
+}
+
+.step {
+    width:1024px;
+}
+
+.present {
+  opacity: 1;
+}
+
+.past {
+  opacity:  1;
+}
+
+.future {
+  opacity: 0.5;
+}
+/*
+div#who-am-i{
+  margin-top: 0px;
+}
+
+div#who-am-i p{
+  margin-top: 100px;
+  text-align: center;
+}
+*/
+
+/* set some styles to show the slideshow normally for browsers we cannot
+support */
+.impress-not-supported .step {
+  margin: 20px auto;
+  opacity: 1;
+  position: relative;
+}
+
+.fallback-message {
+  display: none;
+  margin: 20px auto;
+}
+
+.impress-not-supported .fallback-message {
+  display: block;
+}
