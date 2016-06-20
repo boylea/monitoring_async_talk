@@ -79,8 +79,6 @@ Roadmap
 
 .. note::
 
-    .. image:: https://c2.staticflickr.com/8/7391/12573558665_c06f2355ab.jpg
-
     A talk about async wouldn't be complete without an analogy
 
     Let's say you have you have a litter of puppies. Each puppy needs to be fed and cuddled.
@@ -91,6 +89,10 @@ Roadmap
     Parallel is if you had friends that could feed and cuddle the puppies, one each, all at the same time.
 
     Asynchronous fashion would allow you to give a puppy her food, and while she is eating you can move on to another puppy and give her her food. Since cuddling is an active task you can can't do anything else while you cuddle a puppy.
+
+    https://flic.kr/p/NCCT1 spilled food
+
+    Meli Lewis said I could use her photo
 
 ----------------------------------------------------------------
 
