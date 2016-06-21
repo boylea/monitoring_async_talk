@@ -18,9 +18,12 @@ Amy Boyle `@amylouboyle`__
 ***************************
 
 .. note::
-    words words words
+    background from subtlepatterns.com
 
 __ https://twitter.com/amylouboyle
+
+.. note::
+    Async == Asynchronous
 
 ----------------------------------------------------------------
 
@@ -40,15 +43,27 @@ Roadmap
 
 .. image:: img/whoami_transition.png
 
-.. Software Engineer @
+.. note::
 
-.. .. image:: img/NewRelic-logo-square.png
-..     :height: 200px
-..     :width: 200px
+    German Shepherd puppy: https://www.flickr.com/photos/jn2race/263170635
+
+----------------------------------------------------------------
+
+**Software Engineer @**
+
+.. image:: img/NewRelic-logo-square.png
+    :height: 200px
+    :width: 200px
+
+.. note::
+     I am a software engineer at New Relic. New Relic provides multiple products for application monitoring, most notably APM. Recently I was working on gathering Async performance metrics for Python. This turned out to be a non-trivial task, so I thought I'd write a talk to share with y'all some of the things I learned.
 
 ----------------------------------------------------------------
 
 .. image:: img/async_transition.png
+
+.. note::
+    There is some confusion on the internet as to what the terms surrounding concurrency mean. So I'm going to define them for you, and provide an explanation to serve as a framework for understanding the rest of this talk.
 
 ----------------------------------------------------------------
 
@@ -66,6 +81,15 @@ Roadmap
     * Parallel
 
         .. image:: img/parallel_diagram.png
+
+.. note::
+    Synchronous paradigm is the traditional way of doing things. Only executing on one task at a time, one after the other.
+
+    A concurrent program is one that is able to work on multiple tasks in the same period of time.
+
+    Asynchronous is interleaved task execute. We can alternately run chunks of different tasks.
+
+    Parallel execution mean running different tasks in the same instant of time. For this we must have multiple CPU cores.
 
 ----------------------------------------------------------------
 
@@ -103,6 +127,13 @@ Synchronous
 
 ----------------------------------------------------------------
 
+Parallel
+***********
+
+.. image:: img/parallel_puppy_diagram.png
+
+----------------------------------------------------------------
+
 Asynchronous
 ************
 
@@ -110,10 +141,9 @@ Asynchronous
 
 ----------------------------------------------------------------
 
-Parallel
-***********
+Human = CPU
 
-.. image:: img/parallel_puppy_diagram.png
+Puppy = Task
 
 ----------------------------------------------------------------
 
@@ -123,6 +153,9 @@ Parallel
 Examples will be in :strike:`Pseudocode` Python
 
 .. image:: img/tornado.png
+
+.. note::
+    Mostly because Python is my favorite language, but also because pseudocode looks like Python. My hope is that even if you don't know python that you'll be able to follow the examples. I'll also be using the Tornado web framework because it has an elegant API that allows for concise examples, where we'll be able to stay at a high level.
 
 ----------------------------------------------------------------
 
@@ -137,12 +170,14 @@ Asynchronous code *yields* execution to other pieces of code
             client = HTTPClient()
             response = client.fetch(URL)
             self.finish('Pup is full!\n')
+            cuddle()
 
     class ASyncRequestHandler(RequestHandler):
         async def get(self):
             client = AsyncHTTPClient()
             responses = await client.fetch(URL)
             self.finish('Pup is full!\n')
+            cuddle()
 
 ----------------------------------------------------------------
 
@@ -158,6 +193,7 @@ Asynchronous code *yields* execution to other pieces of code
             for i in range(10):
                 client.fetch(URL)
             self.finish('Pup is full!\n')
+            cuddle()
 
     class ASyncRequestHandler(RequestHandler):
         async def get(self):
@@ -165,6 +201,7 @@ Asynchronous code *yields* execution to other pieces of code
             futures = [client.fetch(URL) for i in range(10)]
             responses = await futures
             self.finish('Pup is full!\n')
+            cuddle()
 
 ----------------------------------------------------------------
 
@@ -185,10 +222,18 @@ Winning!
 
 .. image:: img/monitor_transition.png
 
+.. note::
+    Now that we know what an async app is, and why we should use it, I'm going just a bit about monitoring it.
+
+    First of all, what do I mean when I say monitoring?
+
 ----------------------------------------------------------------
 
-Collecting and processing data about your application as it is running
-***********************************************************************
+Collecting data on your app in production
+*******************************************
+
+.. note::
+    Monitoring is Collecting and processing data about your application as it is running
 
 ----------------------------------------------------------------
 
@@ -200,6 +245,8 @@ Not Profiling
     * gives you averages
     * doesn't give context
 
+    What data are we going to collect?
+
 ----------------------------------------------------------------
 
 * Execution times for: handlers, queries, layers of stack
@@ -209,6 +256,8 @@ Not Profiling
 .. note::
     Monitoring is a VERY large topic, not covering most of it here
 
+    I'm going to focus on what is specific to asynchronous apps
+
 ----------------------------------------------------------------
 
 Your users should not be your monitoring system
@@ -216,16 +265,25 @@ Your users should not be your monitoring system
 .. note::
     If your app is broken you're losing money/sleep
 
-----------------------------------------------------------------
-
-<Something pithy about monitoring>
-
-.. note::
-    I'm going to focus on what is specific to asynchronous apps
-
     Performance matters. Slow websites erode your sanity.
 
+----------------------------------------------------------------
+
+Visualize your data in a way that is consumable
+
+.. image:: img/server_log_file.png
+
+----------------------------------------------------------------
+
+.. image:: img/chart.png
+    :height: 500px
+    :width: 500px
+
+.. note::
+
     Why is my website slow? hint: it's the database
+
+    Tailing a log file is not monitoring
 
 ----------------------------------------------------------------
 
@@ -265,6 +323,9 @@ What to Measure
 * Duration
 * CPU time
 * External time
+
+.. note::
+    We may not always want to, or be able to measure all of these.
 
 ----------------------------------------------------------------
 
@@ -329,7 +390,7 @@ CPU time
             self.finish('Pup is full!\n')
             cuddle()
             end = time.time()
-            self_time = (check0 - start) + (end - check1)
+            cpu_time = (check0 - start) + (end - check1)
 
 ----------------------------------------------------------------
 
@@ -353,7 +414,7 @@ External Time
             await future
             self.finish('Pup is full!\n')
             cuddle()
-            service_time = self.meal_done_time - check0
+            external_time = self.meal_done_time - check0
 
 ----------------------------------------------------------------
 
@@ -362,6 +423,13 @@ External Time
 ----------------------------------------------------------------
 
 Aggregate and collect data in monitor service
+
+.. note::
+    I'm going to wave my hands here, as far as example code goes, due to time constraints.
+
+    This part is not async specific
+
+    I do get to use an async http client library to send data to my monitoring service, which keeps overhead low.
 
 ----------------------------------------------------------------
 
@@ -374,7 +442,7 @@ Percentiles are better than the mean
     data_point = times[index95]
 
 .. note::
-    If your webservice has a mean latency of 100ms, your top 1% of requests may take 5 seconds. This is a bad user experience on it's own if that is a stand-alone service. However, if several such services are needed to render a page, the 99th percentile of one backend may become the median response overall of the frontend.
+    If your webservice has a mean latency of 100ms, your top 1% of requests may take 5 seconds. This is a bad user experience on it's own if that is a stand-alone service. However, with today's tend to move towards microservice architecture, if several such services are needed to render a page, the 99th percentile of one backend may become the median response of what the user experiences.
 
 ----------------------------------------------------------------
 
@@ -390,13 +458,23 @@ CPU intensive tasks are bad news for async architecture
 
 .. image:: img/general_solution_transition.png
 
+.. note::
+    Now that we're seen an example of what gathering this data looks like, I want to talk more generally about how to collect async data. How we can widely apply gathering async metrics from our app.
+
 ----------------------------------------------------------------
 
 **Strategies for a general solution**
 
+* Black box
 * Bake it in
 * Monkey patch code base
-* Black box
+
+.. note::
+    Of course, if for reduced effort, but also reduced insight to our app, we can monitor just response time using an outside service, that is watching request and responses.
+
+    Like I showed in the example, we can embed stopwatches into our code directly.
+
+    If we have a lot of async code, and this becomes tiresome, or we want do decouple our monitoring from our service, we can put the monitioring code in it's own modules or functions, and patch that into our app.
 
 ----------------------------------------------------------------
 
@@ -411,6 +489,11 @@ Challenge of a general solution:
         def get(self):
             feed_puppy2(callback=cuddle_pup)
 
+.. note::
+    The example I used before used Python coroutines, which allows us to yield execution in the middle of a function. This kept all our timer data neatly in one place.
+
+    This may not always be the case. In other languages, or using 3rd party libraries, and async function may take a callback that it will execute when it finishes.
+
 ----------------------------------------------------------------
 
 .. code:: python
@@ -423,9 +506,37 @@ Challenge of a general solution:
             self.cuddle_time = time.time() - start
 
         def get(self):
-            feed_puppy2(callback=self.cuddle_pup_wrapper)
+            feed_puppy(callback=self.cuddle_pup_wrapper)
+
+.. note::
+    In order to include execution time data for this function, we can wrap in our own function that simply calls the original function surrounded by a stopwatch.
 
 ----------------------------------------------------------------
+
+Keeping Track of the pieces
+***************************
+
+.. code:: python
+
+    class ASyncRequestHandler2(RequestHandler):
+
+        def cuddle_pup_wrapper(*args, **kwargs):
+            start = time.time()
+            cuddle_pup()
+            self.cuddle_time = time.time() - start
+
+        def get(self):
+            feed_puppy(callback=self.cuddle_pup_wrapper)
+            feed_puppy(callback=self.cuddle_pup_wrapper)
+            feed_puppy(callback=self.cuddle_pup_wrapper)
+
+.. note::
+    However, if we have several async calls, which one will be done first? How do we know when to stop collecting, and process our data? In this case our "general solution" becomes necessary to get any data at all
+
+----------------------------------------------------------------
+
+Keeping Track of the pieces
+***************************
 
 #. Create an object to hold metrics
 #. Pass it around via wrapper code
@@ -463,12 +574,26 @@ Challenge of a general solution:
             feed_puppy2(callback=wrap(cuddle_pup, metrics, 'cpu'))
             metrics['cpu'] += time.time() - start
 
+.. note::
+
+    Disclaimer: If you are familiar with advanced python, you may notice that I have sacrificed best practices/safety for simplicity here. Do not copy and use this code as is.
+
 ----------------------------------------------------------------
 
 Use tools to help you
 *********************
 
+* Statsd
+* Grafana
+* More ...
+
+.. note::
+    This is starting to get really complex. There are many open source and commercial tools out there to help you do this, or just do it for you.
+
 ----------------------------------------------------------------
+
+How To Monitor Async
+********************
 
 * Figure out what to measure: Response, Duration, CPU, Blocking
 * Link the pieces together

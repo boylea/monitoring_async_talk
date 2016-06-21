@@ -24,7 +24,7 @@ def feed_puppy(callback=None):
 
 def cuddle_pup():
     # pretend to do processing
-    time.sleep(0.1)
+    time.sleep(0.01)
     pass
 
 class ASyncRequestHandler(RequestHandler):
@@ -55,11 +55,11 @@ class ASyncRequestHandler(RequestHandler):
         response = check2 - self.request._start_time
         total_duration = end - start
         total_time = (check0 - start) + (end - check1)
-        service_time = self.meal_done_time - check0
+        extermal_time = self.meal_done_time - check0
         # print('{0:.2f}\t\t{1:.2f}\t\t{2:.2f}'.format(response, total_duration, total_time))
 
         client = tornado.httpclient.AsyncHTTPClient()
-        times = {"response": response, "duration": total_duration, "self":total_time, "external": service_time}
+        times = {"response": response, "duration": total_duration, "cpu": total_time, "external": extermal_time}
         times = tornado.escape.json_encode(times)
         post_data = { 'data': times } #A dictionary of your post data
         body = urllib.parse.urlencode(post_data) #Make it into a post request
