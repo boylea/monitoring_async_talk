@@ -3,7 +3,7 @@
 :description: Why and how to measure asynchronous applications
 :css: async.css
 
-.. :data-transition-duration: 500
+:data-transition-duration: 1
 
 ---------------------------------------------------------------
 
@@ -20,10 +20,9 @@ Amy Boyle `@amylouboyle`__
 .. note::
     background from subtlepatterns.com
 
-__ https://twitter.com/amylouboyle
-
-.. note::
     Async == Asynchronous
+
+__ https://twitter.com/amylouboyle
 
 ----------------------------------------------------------------
 
@@ -36,7 +35,7 @@ Roadmap
 * Who am I and why?
 * What and why async?
 * Monitoring
-* How to measure Async
+* How to measure async
 * General solution
 
 ----------------------------------------------------------------
@@ -56,7 +55,7 @@ Roadmap
     :width: 200px
 
 .. note::
-     I am a software engineer at New Relic. New Relic provides multiple products for application monitoring, most notably APM. Recently I was working on gathering Async performance metrics for Python. This turned out to be a non-trivial task, so I thought I'd write a talk to share with y'all some of the things I learned.
+     I am a software engineer at New Relic. New Relic provides multiple monitoring products, most notably APM. Recently I was working on gathering Async performance metrics for Python. This turned out to be a non-trivial task, so I thought I'd write a talk to share with y'all some of the things I learned.
 
 ----------------------------------------------------------------
 
@@ -74,13 +73,12 @@ Roadmap
 .. image:: img/sync_diagram.png
 
 * Concurrent
-    * Asynchronous
-
-        .. image:: img/async_diagram.png
-
     * Parallel
 
         .. image:: img/parallel_diagram.png
+    * Asynchronous
+
+        .. image:: img/async_diagram.png
 
 .. note::
     Synchronous paradigm is the traditional way of doing things. Only executing on one task at a time, one after the other.
@@ -145,6 +143,10 @@ Human = CPU
 
 Puppy = Task
 
+Feeding = I/O call
+
+Cuddling = CPU intensive code
+
 ----------------------------------------------------------------
 
 .. role:: strike
@@ -156,6 +158,12 @@ Examples will be in :strike:`Pseudocode` Python
 
 .. note::
     Mostly because Python is my favorite language, but also because pseudocode looks like Python. My hope is that even if you don't know python that you'll be able to follow the examples. I'll also be using the Tornado web framework because it has an elegant API that allows for concise examples, where we'll be able to stay at a high level.
+
+    I am taking an example-based approach.
+
+    If you are familiar with advanced python, you may notice that I have sacrificed best practices/safety for simplicity here. Do not copy and use this code as is.
+
+    There are also some places where I'm going to gloss over the details. My goal here is to outline the fundamental concepts, not show python tricks.
 
 ----------------------------------------------------------------
 
@@ -178,6 +186,9 @@ Asynchronous code *yields* execution to other pieces of code
             responses = await client.fetch(URL)
             self.finish('Pup is full!\n')
             cuddle()
+
+.. note::
+    This is a coroutine
 
 ----------------------------------------------------------------
 
@@ -272,8 +283,16 @@ Your users should not be your monitoring system
 Visualize your data in a way that is consumable
 
 .. image:: img/server_log_file.png
+    :height: 500px
+    :width: 500px
+
+.. note::
+
+    Tailing a log file is not monitoring
 
 ----------------------------------------------------------------
+
+Visualize your data in a way that is consumable
 
 .. image:: img/chart.png
     :height: 500px
@@ -282,8 +301,6 @@ Visualize your data in a way that is consumable
 .. note::
 
     Why is my website slow? hint: it's the database
-
-    Tailing a log file is not monitoring
 
 ----------------------------------------------------------------
 
@@ -404,9 +421,6 @@ External Time
 
     class ASyncRequestHandler(RequestHandler):
 
-        def puppy_done_eating(self, future):
-            self.meal_done_time = time.time()
-
         async def get(self):
             future = feed_puppy()
             future.add_done_callback(self.puppy_done_eating)
@@ -415,6 +429,9 @@ External Time
             self.finish('Pup is full!\n')
             cuddle()
             external_time = self.meal_done_time - check0
+
+        def puppy_done_eating(self, future):
+            self.meal_done_time = time.time()
 
 ----------------------------------------------------------------
 
@@ -425,7 +442,7 @@ External Time
 Aggregate and collect data in monitor service
 
 .. note::
-    I'm going to wave my hands here, as far as example code goes, due to time constraints.
+    I've created a simple plotting service which I can post data to, and it will use bokeh to chart the data.
 
     This part is not async specific
 
@@ -496,39 +513,43 @@ Challenge of a general solution:
 
 ----------------------------------------------------------------
 
+:id: wrap-cuddle
+
 .. code:: python
 
     class ASyncRequestHandler2(RequestHandler):
 
-        def cuddle_pup_wrapper(*args, **kwargs):
+        def get(self):
+            feed_puppy(callback=self.cuddle_pup_wrap)
+
+        def cuddle_pup_wrap(*args, **kwargs):
             start = time.time()
             cuddle_pup()
             self.cuddle_time = time.time() - start
-
-        def get(self):
-            feed_puppy(callback=self.cuddle_pup_wrapper)
 
 .. note::
     In order to include execution time data for this function, we can wrap in our own function that simply calls the original function surrounded by a stopwatch.
 
 ----------------------------------------------------------------
 
-Keeping Track of the pieces
-***************************
+:id: wrap-cuddle2
+
+**Multiple callbacks?**
 
 .. code:: python
 
     class ASyncRequestHandler2(RequestHandler):
 
-        def cuddle_pup_wrapper(*args, **kwargs):
+        def get(self):
+            self.cuddle_time = 0
+            feed_puppy(callback=self.cuddle_pup_wrap)
+            feed_puppy(callback=self.cuddle_pup_wrap)
+            feed_puppy(callback=self.cuddle_pup_wrap)
+
+        def cuddle_pup_wrap(*args, **kwargs):
             start = time.time()
             cuddle_pup()
-            self.cuddle_time = time.time() - start
-
-        def get(self):
-            feed_puppy(callback=self.cuddle_pup_wrapper)
-            feed_puppy(callback=self.cuddle_pup_wrapper)
-            feed_puppy(callback=self.cuddle_pup_wrapper)
+            self.cuddle_time += time.time() - start
 
 .. note::
     However, if we have several async calls, which one will be done first? How do we know when to stop collecting, and process our data? In this case our "general solution" becomes necessary to get any data at all
@@ -571,12 +592,74 @@ Keeping Track of the pieces
         def get(self):
             start = time.time()
             metrics = Metrics('cpu')
-            feed_puppy2(callback=wrap(cuddle_pup, metrics, 'cpu'))
+            feed_puppy(callback=wrap(cuddle_pup, metrics, 'cpu'))
+            feed_puppy(callback=wrap(cuddle_pup, metrics, 'cpu'))
             metrics['cpu'] += time.time() - start
 
 .. note::
 
     Disclaimer: If you are familiar with advanced python, you may notice that I have sacrificed best practices/safety for simplicity here. Do not copy and use this code as is.
+
+----------------------------------------------------------------
+
+Critical Path
+**************
+
+.. code:: python
+
+    class ASyncRequestHandler2(RequestHandler):
+
+        @tornado.web.asynchronous
+        def get(self):
+            self.things_done = 0
+            feed_puppy(callback=self.thing_done)
+            do_dishes(callback=self.thing_done)
+            roomba_room(callback=self.thing_done)
+
+        def thing_done(self):
+            self.things_done += 1
+            if self.things_done == 3:
+                self.finish('All chores done')
+
+.. note::
+     looking back at this example where we had multiple external calls. We saw before how to keep track of the cpu time - which we know is important for throughput.
+
+     But thinking about this task by itself, what if one of the 3 puppies we are feeding in this task is a *really* slow eater? We want to know which particular call(s) is the limiting factor for us to finish. This is called the critical path.
+
+----------------------------------------------------------------
+
+.. image:: img/critical_path.png
+
+----------------------------------------------------------------
+
+.. image:: img/critical_path_highlight.png
+
+----------------------------------------------------------------
+
+:id: critical-path
+
+Critical Path
+**************
+
+.. code:: python
+
+    class ASyncRequestHandler2(RequestHandler):
+
+        @tornado.web.asynchronous
+        def get(self):
+            self.things_done = 0
+            self.metrics = Metrics('io1','io2','io3')
+            feed_puppy(callback=self.thing_done, 'io1')
+            do_dishes(callback=self.thing_done, 'io2')
+            roomba_room(callback=self.thing_done, 'io3')
+            self.get_done = time.time()
+
+        def thing_done(self, name):
+            self.things_done += 1
+            self.metrics[name] = time.time() - self.get_done
+            if self.things_done == 3:
+                self.finish('All pups fed')
+                self.metrics.process()
 
 ----------------------------------------------------------------
 
@@ -590,6 +673,8 @@ Use tools to help you
 .. note::
     This is starting to get really complex. There are many open source and commercial tools out there to help you do this, or just do it for you.
 
+    You will probably not be trying to get all the data that I have outlined here. I have outline the building blocks of what kinds of metrics you want to look out for.
+
 ----------------------------------------------------------------
 
 How To Monitor Async
@@ -597,7 +682,7 @@ How To Monitor Async
 
 * Figure out what to measure: Response, Duration, CPU, Blocking
 * Link the pieces together
-* Visualize the data
+* Visualize the datas
 
 ----------------------------------------------------------------
 

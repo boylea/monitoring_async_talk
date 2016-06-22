@@ -108,6 +108,18 @@ div#link-callbacks {
   font-size: 75%;
 }
 
+div#wrap-cuddle pre, div#wrap-cuddle2 pre {
+  margin-left: 0;
+}
+
+div#critical-path{
+  font-size: 90%;
+}
+
+div#critical-path pre {
+  margin-left: 0;
+}
+
 /* set some styles to show the slideshow normally for browsers we cannot
 support */
 .impress-not-supported .step {
