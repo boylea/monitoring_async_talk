@@ -30,6 +30,16 @@ __ https://twitter.com/amylouboyle
 :data-y: r1200
 :data-z: r-500
 
+Monitoring Async Applications
+====================================
+
+Amy Boyle `@amylouboyle`__
+***************************
+
+__ https://twitter.com/amylouboyle
+
+----------------------------------------------------------------
+
 Roadmap
 
 * Who am I and why?
@@ -55,7 +65,9 @@ Roadmap
     :width: 200px
 
 .. note::
-     I am a software engineer at New Relic. New Relic provides multiple monitoring products, most notably APM. Recently I was working on gathering Async performance metrics for Python. This turned out to be a non-trivial task, so I thought I'd write a talk to share with y'all some of the things I learned.
+     I am a software engineer at New Relic. New Relic provides multiple monitoring products, most notably APM.
+
+     Recently I was working on gathering Async performance metrics for Python. This turned out to be a non-trivial task, so I thought I'd write a talk to share with y'all some of the things I learned.
 
 ----------------------------------------------------------------
 
@@ -85,9 +97,9 @@ Roadmap
 
     A concurrent program is one that is able to work on multiple tasks in the same period of time.
 
-    Asynchronous is interleaved task execute. We can alternately run chunks of different tasks.
-
     Parallel execution mean running different tasks in the same instant of time. For this we must have multiple CPU cores.
+
+    Asynchronous is interleaved task execution. We can alternately run chunks of different tasks.
 
 ----------------------------------------------------------------
 
@@ -105,13 +117,6 @@ Roadmap
 
     Let's say you have you have a litter of puppies. Each puppy needs to be fed and cuddled.
 
-    If you were to do this in a totally synchronous fashion, you would give a puppy its food, stand there and wait for her to finish, then clean up. Then you'd do that for the next puppy and the next etc.
-    Then you would pick up and cuddle each puppy in turn as well.
-
-    Parallel is if you had friends that could feed and cuddle the puppies, one each, all at the same time.
-
-    Asynchronous fashion would allow you to give a puppy her food, and while she is eating you can move on to another puppy and give her her food. Since cuddling is an active task you can can't do anything else while you cuddle a puppy.
-
     https://flic.kr/p/NCCT1 spilled food
 
     Meli Lewis said I could use her photo
@@ -123,6 +128,12 @@ Synchronous
 
 .. image:: img/sync_puppy_diagram.png
 
+.. note::
+    Explain diagram.
+
+    If you were to do this in a totally synchronous fashion, you would give a puppy its food, stand there and wait for her to finish, then clean up. Then you'd do that for the next puppy and the next etc.
+    Then you would pick up and cuddle each puppy in turn as well.
+
 ----------------------------------------------------------------
 
 Parallel
@@ -130,12 +141,18 @@ Parallel
 
 .. image:: img/parallel_puppy_diagram.png
 
+.. note::
+    Parallel is if you had friends that could feed and cuddle the puppies, one each, all at the same time.
+
 ----------------------------------------------------------------
 
 Asynchronous
 ************
 
 .. image:: img/async_puppy_diagram.png
+
+.. note::
+    Asynchronous fashion would allow you to give a puppy her food, and while she is eating you can move on to another puppy and give her her food. Since cuddling is an active task you can can't do anything else while you cuddle a puppy.
 
 ----------------------------------------------------------------
 
@@ -234,7 +251,7 @@ Winning!
 .. image:: img/monitor_transition.png
 
 .. note::
-    Now that we know what an async app is, and why we should use it, I'm going just a bit about monitoring it.
+    Now that we know what an async app is, and why we should use it, I'm going to talk just a bit about monitoring it.
 
     First of all, what do I mean when I say monitoring?
 
@@ -253,8 +270,7 @@ Not Profiling
 
 .. note::
     * high overhead
-    * gives you averages
-    * doesn't give context
+    * critically, for async, doesn't give context
 
     What data are we going to collect?
 
@@ -265,6 +281,8 @@ Not Profiling
 * Error rate
 
 .. note::
+    Some of most common types of data we would want to monitor are Timing data, throughput and error rate. Since it's not specific to async, we're not going to look at throughput or error rate for this talk.
+
     Monitoring is a VERY large topic, not covering most of it here
 
     I'm going to focus on what is specific to asynchronous apps
@@ -274,9 +292,14 @@ Not Profiling
 Your users should not be your monitoring system
 
 .. note::
-    If your app is broken you're losing money/sleep
 
-    Performance matters. Slow websites erode your sanity.
+    Why should you have monitoring in the first place? I'm hoping if you're at this talk, I don't need to sell you on the importance of monitoring in general.
+
+    If your app is a source of income (or pride), and it's broken, you're losing money/sleep. So we'd prefer to find problems sooner, ideally before they become a real problem for our users.
+
+    By broken I mean not just total unavailable, or throwing errors.
+
+    Performance matters. Slow websites erode the sanity of your users.
 
 ----------------------------------------------------------------
 
@@ -619,12 +642,15 @@ Critical Path
         def thing_done(self):
             self.things_done += 1
             if self.things_done == 3:
+                fight_crime()
                 self.finish('All chores done')
 
 .. note::
      looking back at this example where we had multiple external calls. We saw before how to keep track of the cpu time - which we know is important for throughput.
 
-     But thinking about this task by itself, what if one of the 3 puppies we are feeding in this task is a *really* slow eater? We want to know which particular call(s) is the limiting factor for us to finish. This is called the critical path.
+     I'm going to depart from our puppy analogy a bit and introduce some other IO calls.
+
+     Thinking about this task by itself, what if one of the 3 chore we are doing in this task is a *really* slow eater? We want to know which particular call(s) is the limiting factor for us to finish. This is called the critical path.
 
 ----------------------------------------------------------------
 
@@ -658,7 +684,8 @@ Critical Path
             self.things_done += 1
             self.metrics[name] = time.time() - self.get_done
             if self.things_done == 3:
-                self.finish('All pups fed')
+                fight_crime()
+                self.finish('All chores done')
                 self.metrics.process()
 
 ----------------------------------------------------------------
@@ -686,9 +713,11 @@ How To Monitor Async
 
 ----------------------------------------------------------------
 
-Slides/Source on Github: `boylea/monitoring_async`__
+:id: fin
 
-__ https://github.com/boylea
+Slides/Source on Github: `github.com/boylea/monitoring_async_talk`__
+
+__ https://github.com/boylea/monitoring_async_talk
 
 `@amylouboyle`__
 
