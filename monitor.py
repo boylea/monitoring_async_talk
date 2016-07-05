@@ -6,7 +6,6 @@ import tornado
 from tornado.web import Application, RequestHandler
 from bokeh.plotting import figure, curdoc
 from bokeh.io import vplot, hplot
-from bokeh.charts import Area
 from bokeh.palettes import Spectral4
 
 dtypes = ['response', 'duration', 'cpu', 'external']

@@ -10,10 +10,9 @@ presentation slides are async.rst
 To run the demo:
 ----------------
 
-Install Tornado and bokeh:
+Install Bokeh (which also installs Tornado):
 
     $ pip install bokeh
-    $ pip install tornado
 
 Start the charting server:
 
@@ -30,3 +29,16 @@ Now send the app some traffic. e.g. via curl:
 or via apache bench:
 
     $ ab -c 10 -n 800 "http://localhost:8888/"
+
+
+To run the presentation:
+------------------------
+
+Install hovercraft:
+
+    $ pip install hovercraft
+
+Run the presentation:
+
+    $ hovercraft async.rst
+    
