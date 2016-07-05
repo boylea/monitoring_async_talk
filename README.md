@@ -34,6 +34,8 @@ or via apache bench:
 To run the presentation:
 ------------------------
 
+Note that I have the [presentation up on my blog](http://amyboyle.ninja/monitoring_async_talk)
+
 Install hovercraft:
 
     $ pip install hovercraft
@@ -41,4 +43,3 @@ Install hovercraft:
 Run the presentation:
 
     $ hovercraft async.rst
-    
