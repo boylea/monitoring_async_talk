@@ -1,0 +1,143 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+body {
+    font-family: Roboto, sans-serif;
+    font-size:64px;
+    text-align: center;
+    height:640px;
+    width:1024px;
+    margin:10px;
+    padding:0;
+    background-image: url('img/furley_bg.png');
+}
+a {
+  text-decoration: none;
+}
+
+h1 {
+    font-size:140%;
+}
+
+h2 {
+    margin-top: 1em;
+    font-size:110%;
+    font-weight: normal;
+}
+
+p, ul, ol {
+    margin-top: 0.5em;
+    margin-left: 1em;
+    text-align: left;
+}
+
+li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+b, strong { font-weight: bold }
+
+/*using pre as alias for code?*/
+pre {
+    text-align: left;
+    font-size:50%;
+    margin-left:5%;
+    padding:1em;
+    width:80%;
+}
+/*
+td {
+  border: 1px solid #999;
+  padding: 0.5rem;
+}
+*/
+img {
+  margin: 5px;
+}
+
+.strike {
+  text-decoration: line-through;
+}
+
+.step {
+    width:1024px;
+}
+
+.present {
+  opacity: 1;
+}
+
+.past {
+  opacity:  1;
+}
+
+.future {
+  opacity: 0.5;
+}
+
+div#paradigm-overview {
+  font-size: 75%;
+  margin: 0;
+  margin-top: 10px;
+}
+div#paradigm-overview ul {
+  margin-bottom: 0;
+}
+div#paradigm-overview blockquote {
+  margin-top: 0;
+}
+div#paradigm-overview li {
+  margin: 0;
+}
+
+div#ex-fetch1, div#ex-fetch2 {
+  font-size:90%;
+}
+div#ex-fetch1, div#ex-fetch2 pre{
+  margin-left:2%;
+}
+
+div#example-app p{
+  margin-bottom:0;
+}
+div#example-app pre{
+  margin-top:0;
+}
+
+div#link-callbacks {
+  font-size: 75%;
+}
+
+div#wrap-cuddle pre, div#wrap-cuddle2 pre {
+  margin-left: 0;
+}
+
+div#critical-path{
+  font-size: 90%;
+}
+
+div#critical-path pre {
+  margin-left: 0;
+}
+
+div#fin {
+  margin-left:0px;
+  font-size:80%;
+}
+
+/* set some styles to show the slideshow normally for browsers we cannot
+support */
+.impress-not-supported .step {
+  margin: 20px auto;
+  opacity: 1;
+  position: relative;
+}
+
+.fallback-message {
+  display: none;
+  margin: 20px auto;
+}
+
+.impress-not-supported .fallback-message {
+  display: block;
+}
